@@ -1,0 +1,28 @@
+﻿<div class="position-fixed top-0 end-0 p-3" style="z-index: 1005">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-primary">
+            <img src="~/assets/images/logo.svg" alt="" class="me-2" height="18">
+            <strong class="me-auto" style="color:#2c3237;">System Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            @if (TempData["Toast"] != null)
+            {
+                @Html.Raw(TempData["Toast"])
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/assets/js/pages/bootstrap-toastr.init.js"></script>
+    <script>
+        console.log("Toasy");
+        $(document).ready(function () {
+            if ('@TempData["Toast"]') {
+                var toastElement = new bootstrap.Toast(document.getElementById('liveToast'));
+                toastElement.show();
+            }
+        });
+    </script>
+}

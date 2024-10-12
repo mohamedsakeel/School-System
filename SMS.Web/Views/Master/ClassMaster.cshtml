@@ -1,0 +1,113 @@
+﻿@model SMS.AppCore.DTOs.ClassViewModel
+
+@{
+    ViewBag.Title = "Master Files";
+    ViewBag.pTitle = "Class Master";
+    ViewBag.pageTitle = "Class Master";
+    ViewData["Title"] = "Class Master";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles {
+    <!-- DataTables -->
+    <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link href="~/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body border-bottom">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 card-title flex-grow-1">Class Master</h5>
+                    <div class="flex-shrink-0">
+                        <a href="#classModal" data-bs-toggle="modal" data-action="create" class="btn btn-primary">Add New Class</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Class Name</th>
+                            <th>Last Updated Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var classs in Model.Classes)
+                        {
+                            <tr>
+                                <td>@classs.ClassName</td>
+                                <td>@classs.EnteredDate</td>
+                                <td>@classs.StatusText</td>
+                                <td>
+                                    <a id="btnEdit" data-class-id="@classs.ClassId" data-class-name="@classs.ClassName" data-class-status="@classs.Status" class="text-success edit-list edit-list"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Role Modal *@
+<div class="modal fade" id="classModal" tabindex="-1" aria-labelledby="classModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleModalLabel">Add/Edit Class</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="classForm" asp-controller="Master" asp-action="SaveClass" method="post">
+                    <input type="hidden" id="classId" asp-for="Class.ClassId" />
+                    <div class="mb-3">
+                        <label for="className" class="form-label">Class Name</label>
+                        <input type="text" id="className" name="Class.ClassName" asp-for="Class.ClassName" class="form-control" required placeholder="Enter Grade (Eg: Grade 2A)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="roleName" class="form-label">Status</label>
+                        <select asp-for="Class.Status" class="form-select" id="statuselect" required>
+                            <option value="True">Active</option>
+                            <option value="False">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/assets/js/pages/datatables.init.js"></script>
+
+    <script src="~/assets/js/ClassMaster.js"></script>
+    <script src="~/assets/js/app.js"></script>
+
+    <script src="~/assets/js/pages/bootstrap-toastr.init.js"></script>
+    <script>
+        console.log("Toasy");
+        $(document).ready(function () {
+            if ('@TempData["Toast"]') {
+                var toastElement = new bootstrap.Toast(document.getElementById('liveToast'));
+                toastElement.show();
+            }
+        });
+    </script>
+}

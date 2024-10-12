@@ -1,0 +1,160 @@
+﻿@model SMS.AppCore.DTOs.UserViewModel
+
+@{
+    ViewBag.Title = "User Management";
+    ViewBag.pTitle = "User Management";
+    ViewBag.pageTitle = "Users";
+    ViewData["Title"] = "Users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles {
+    <link href="~/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <!-- DataTables -->
+    <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link href="~/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body border-bottom">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 card-title flex-grow-1">Users</h5>
+                    <div class="flex-shrink-0">
+                        <a href="#userModal" data-bs-toggle="modal" class="btn btn-primary">Add New User</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body border-bottom">
+                <div class="row g-3">
+                    <div class="col-xxl-4 col-lg-6">
+                        <input type="search" class="form-control" id="searchTableList" placeholder="Search for ...">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Phone Number</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.FirstName</td>
+                                <td>@user.LastName</td>
+                                <td>@user.Email</td>
+                                <td>
+                                    @if (user.RoleName != null && user.RoleName.Any())
+                                    {
+                                        foreach (var role in user.RoleName)
+                                        {
+                                            <span class="badge badge-soft-primary">@role</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No roles Assigned</span>
+                                    }
+
+                                </td>
+                                <td>@user.PhoneNumber</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="openEditUserModal('@user.Id', '@user.FirstName', '@user.LastName', '@user.Email', '@user.PhoneNumber', '@string.Join(",", user.RoleName)')">Edit User</button>
+                                    <button class="btn btn-danger" onclick="deleteUser('@user.Id')">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Create new user modal *@
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form id="userForm" asp-controller="User" asp-action="SaveUser" method="post">
+                    <input asp-for="User.Id" type="hidden" id="userId" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="User.FirstName" class="form-label">First Name</label>
+                                <input asp-for="User.FirstName" type="text" class="form-control" id="firstName" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="User.LastName" class="form-label">Last Name</label>
+                                <input asp-for="User.LastName" type="text" class="form-control" id="lastName" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="User.Email" class="form-label">Email</label>
+                        <input asp-for="User.Email" type="email" class="form-control" id="email" required />
+                        <p class="text-danger">Password will be sent to this email</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="User.PhoneNumber" class="form-label">Phone Number</label>
+                        <input asp-for="User.PhoneNumber" type="tel" class="form-control" id="phoneNumber" name="PhoneNumber" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="RoleId" class="form-label">Role</label>
+                        <select asp-for="RoleId" class="form-select" id="role" name="SelectedRole">
+                            <option value="">Select Role</option>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <option value="@role.Name">@role.Name</option>
+                            }
+                        </select>
+
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger" id="modalSubmitButton">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/assets/libs/select2/js/select2.min.js"></script>
+
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/assets/js/pages/datatables.init.js"></script>
+    <script src="~/assets/js/User.js"></script>
+
+    <script src="~/assets/js/app.js"></script>
+}
