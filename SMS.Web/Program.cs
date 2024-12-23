@@ -39,10 +39,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
+
 //Master
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
-
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
 
 //DTO Map
 builder.Services.AddAutoMapper(new[] { typeof(Program), typeof(DTOProfileMap) });
@@ -52,7 +55,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -81,8 +83,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     // Cookie settings
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    
     options.LoginPath = "/Auth/Login";
     options.AccessDeniedPath = "/Auth/AccessDenied";
     options.SlidingExpiration = true;

@@ -1,0 +1,121 @@
+﻿@model SMS.AppCore.DTOs.ExamViewModel
+
+@{
+    ViewBag.Title = "Master Files";
+    ViewBag.pTitle = "Exam Master";
+    ViewBag.pageTitle = "Exam Master";
+    ViewData["Title"] = "Exam Master";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles {
+    <!-- DataTables -->
+    <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link href="~/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body border-bottom">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 card-title flex-grow-1">Exam Master</h5>
+                    <div class="flex-shrink-0">
+                        <a href="#examModal" data-bs-toggle="modal" data-action="create" class="btn btn-primary">Add New Exam</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Exam Name</th>
+                            <th>Year</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var exam in Model.Exams)
+                        {
+                            <tr>
+                                <td>@exam.Name</td>
+                                <td>@exam.Year</td>
+                                <td>@exam.StatusText</td>
+                                <td>
+                                    <a id="btnEdit" data-exam-id="@exam.Id" data-exam-name="@exam.Name" data-exam-status="@exam.Status" data-exam-year="@exam.Year" class="text-success edit-list edit-list"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Role Modal *@
+<div class="modal fade" id="examModal" tabindex="-1" aria-labelledby="subjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleModalLabel">Add/Edit Exam</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="examForm" asp-controller="Master" asp-action="SaveExam" method="post">
+                    <input type="hidden" id="examId" asp-for="Exam.Id" />
+                    <div class="mb-3">
+                        <label for="examName" class="form-label">Exam Name</label>
+                        <select id="examName" name="Exam.Name" asp-for="Exam.Name" class="form-select" required>
+                            <option value="1st Term">1st Term</option>
+                            <option value="2nd Term">2nd Term</option>
+                            <option value="3rd Term">3rd Term</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="examyear" class="form-label">Exam Year</label>
+                        <input type="number" id="examyear" name="Exam.Year" asp-for="Exam.Year" class="form-control" required placeholder="Enter Year (Eg: 2024)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="roleName" class="form-label">Status</label>
+                        <select asp-for="Exam.Status" class="form-select" id="statuselect" required>
+                            <option value="True">Active</option>
+                            <option value="False">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/assets/js/pages/datatables.init.js"></script>
+
+    <script src="~/assets/js/ExamMaster.js"></script>
+    <script src="~/assets/js/app.js"></script>
+
+    <script src="~/assets/js/pages/bootstrap-toastr.init.js"></script>
+    <script>
+        console.log("Toasy");
+        $(document).ready(function () {
+            if ('@TempData["Toast"]') {
+                var toastElement = new bootstrap.Toast(document.getElementById('liveToast'));
+                toastElement.show();
+            }
+        });
+    </script>
+}

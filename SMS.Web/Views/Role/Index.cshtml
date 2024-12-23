@@ -1,0 +1,107 @@
+﻿@model SMS.AppCore.DTOs.RoleViewModel
+
+@{
+    ViewBag.Title = "User Management";
+    ViewBag.pTitle = "Role Management";
+    ViewBag.pageTitle = "Roles";
+    ViewData["Title"] = "Roles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles {
+    <!-- DataTables -->
+    <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link href="~/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body border-bottom">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 card-title flex-grow-1">Roles</h5>
+                    <div class="flex-shrink-0">
+                        <a href="#roleModal" data-bs-toggle="modal" data-action="create" class="btn btn-primary">Add New Role</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body border-bottom">
+                <div class="row g-3">
+                    <div class="col-xxl-4 col-lg-6">
+                        <input type="search" class="form-control" id="searchTableList" placeholder="Search for ...">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var role in Model.Roles)
+                        {
+                            <tr>
+                                <td>@role.Name</td>
+                                <td>
+                                    <ul class="list-unstyled hstack gap-1 mb-0">
+                                        <li data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit">
+                                            <a href="#roleModal" data-bs-toggle="modal" data-action="edit" data-role-id="@role.Id" data-role-name="@role.Name" class="btn btn-sm btn-soft-info edit-role"><i class="mdi mdi-pencil-outline"></i></a>
+                                        </li>
+                                        <li data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete">
+                                            <form asp-controller="Role" asp-action="DeleteRole" asp-route-id="@role.Id" method="post" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-soft-danger"><i class="mdi mdi-delete-outline"></i></button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Role Modal *@
+<div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleModalLabel">Add/Edit Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="roleForm" asp-controller="Role" asp-action="AddOrEditRole" method="post">
+                    <input type="hidden" id="roleId" asp-for="Role.Id" />
+                    <div class="mb-3">
+                        <label for="roleName" class="form-label">Role Name</label>
+                        <input type="text" id="roleName" name="Role.Name" asp-for="Role.Name" class="form-control" placeholder="Enter role name" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/assets/js/pages/datatables.init.js"></script>
+    <script src="~/assets/js/Role.js"></script>
+
+    <script src="~/assets/js/app.js"></script>
+}

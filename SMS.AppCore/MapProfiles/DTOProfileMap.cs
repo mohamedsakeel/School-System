@@ -24,7 +24,21 @@ namespace SMS.AppCore.MapProfiles
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ReverseMap();
 
-            CreateMap<Class, ClassDTO>().ReverseMap();
+            CreateMap<Student, StudentDTO>()
+                .ForMember(dest => dest.ClassName, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<Class, ClassDTO>()
+                .ForMember(dest => dest.Subjects, opt => opt.Ignore())
+                .ReverseMap();
+
+
+            CreateMap<Subject, SubjectDTO>()
+                .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.SubjectName))
+                .ReverseMap();
+
+            CreateMap<Exam, ExamDTO>().ReverseMap();
+
 
         }
     }

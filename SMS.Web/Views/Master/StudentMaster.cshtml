@@ -1,0 +1,130 @@
+﻿@model SMS.AppCore.DTOs.StudentViewModel
+
+@{
+    ViewBag.Title = "Master Files";
+    ViewBag.pTitle = "Student Master";
+    ViewBag.pageTitle = "Student Master";
+    ViewData["Title"] = "Student Master";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles {
+    <!-- DataTables -->
+    <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link href="~/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+    <div class="col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="fw-semibold">Add New Student</h5>
+
+                <form id="studentForm" asp-controller="Master" asp-action="SaveStudent" method="post">
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" id="firstName" asp-for="Student.FirstName" class="form-control" required placeholder="Enter First Name" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" id="lastName" asp-for="Student.LastName" class="form-control" required placeholder="Enter Last Name" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="indexno" class="form-label">Index Number</label>
+                        <input type="text" id="indexno" asp-for="Student.IndexNo" class="form-control" required placeholder="Eg:- 1234" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="indexno" class="form-label">Phone Number</label>
+                        <input type="text" id="phonenumber" asp-for="Student.PhoneNumber" class="form-control" required placeholder="Eg:- 0771234567" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Gender</label>
+                        <div class="row" style="margin-left:0;">
+                            <div class="col-6 form-check">
+                                <input type="radio" asp-for="Student.Gender" value="Male" class="form-check-input" id="genderMale" />
+                                <label class="form-check-label" for="genderMale">Male</label>
+                            </div>
+                            <div class="col-6 form-check">
+                                <input type="radio" asp-for="Student.Gender" value="Female" class="form-check-input" id="genderFemale" />
+                                <label class="form-check-label" for="genderFemale">Female</label>
+                            </div>
+                            <span asp-validation-for="Student.Gender" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Student.DateOfBirth" class="form-label">Date of Birth</label>
+                        <input asp-for="Student.DateOfBirth" type="date" class="form-control" />
+                        <span asp-validation-for="Student.DateOfBirth" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Student.ClassId" class="form-label">Assign Class</label>
+                        <select asp-for="Student.ClassId" class="form-select" required>
+                            <option value="">Select Class</option>
+                            @foreach(var item in Model.Classes){
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button class="btn btn-info" type="submit">Save Student</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-9">
+        <div class="card">
+            <div class="card-body">
+                <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Index No</th>
+                            <th>Student Name</th>
+                            <th>Gender</th>
+                            <th>Class</th>
+                            <th>Phone Number</th>
+                            <th>DOB</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @foreach(var item in Model.Students){
+                                <td></td>
+                                <td>@item.IndexNo</td>
+                                <td>@item.FirstName @item.LastName</td>
+                                <td>@item.Gender</td>
+                                <td>@item.ClassName</td>
+                                <td>@item.PhoneNumber</td>
+                                <td>@item.DateOfBirth.ToString("d")</td>
+                                <td>@item.Status</td>
+                            }
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+
+    <script src="~/assets/js/app.js"></script>
+    <script src="~/assets/js/pages/bootstrap-toastr.init.js"></script>
+    <script>
+        $(document).ready(function () {
+            if ('@TempData["Toast"]') {
+                var toastElement = new bootstrap.Toast(document.getElementById('liveToast'));
+                toastElement.show();
+            }
+        });
+    </script>
+}

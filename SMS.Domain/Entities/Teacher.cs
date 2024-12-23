@@ -20,6 +20,5 @@ namespace SMS.Domain.Entities
         public DateTime EnteredDate { get; set; }
         public bool Status { get; set; }
 
-        public ICollection<SubjectAssignment> SubjectAssignments { get; set; } = new List<SubjectAssignment>();
     }
 }

@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace SMS.AppCore.DTOs
 {
-    public class ClassDTO
+    public class SubjectDTO
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string SubjectName { get; set; }
+        public bool IsElective { get; set; } // Indicates if the subject is an elective
         public DateTime EnteredDate { get; set; }
         public bool Status { get; set; }
 
@@ -21,14 +22,12 @@ namespace SMS.AppCore.DTOs
                 return Status ? "Active" : "Inactive";
             }
         }
-        public List<SubjectDTO> Subjects { get; set; } = new List<SubjectDTO>();
     }
 
-    public class ClassViewModel
+    public class SubjectViewModel
     {
-        public ClassDTO Class { get; set; }
+        public SubjectDTO Subject { get; set; }
         public IEnumerable<ClassDTO> Classes { get; set; } = new List<ClassDTO>();
         public IEnumerable<SubjectDTO> Subjects { get; set; } = new List<SubjectDTO>();
-        public List<int> SelectedSubjectIds { get; set; } = new List<int>(); // For multiselect dropdown
     }
 }
