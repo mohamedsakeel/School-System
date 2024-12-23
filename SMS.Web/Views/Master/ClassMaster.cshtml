@@ -9,12 +9,26 @@
 }
 
 @section styles {
+    <link href="~/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
     <!-- DataTables -->
     <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
     <link href="~/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Responsive datatable examples -->
     <link href="~/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        .company-names {
+            white-space: normal !important; /* Allows wrapping */
+            overflow-wrap: break-word !important; /* Breaks long words */
+            max-width: 200px !important; /* Adjust the max width as needed */
+        }
+
+        .company-names .badge {
+            display: inline-block; /* Ensures badges are treated as block elements */
+            margin-bottom: 5px; /* Adds spacing between badges */
+        }
+    </style>
 }
 
 <div class="row">
@@ -34,6 +48,7 @@
                         <tr>
                             <th>Class Name</th>
                             <th>Last Updated Date</th>
+                            <th>Assigned Subjects</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -43,11 +58,24 @@
                         @foreach (var classs in Model.Classes)
                         {
                             <tr>
-                                <td>@classs.ClassName</td>
-                                <td>@classs.EnteredDate</td>
+                                <td>@classs.Name</td>
+                                <td>@classs.EnteredDate.ToString("D")</td>
+                                <td class="company-names">
+                                    @if (classs.Subjects != null && classs.Subjects.Any())
+                                    {
+                                        @foreach (var subject in classs.Subjects)
+                                        {
+                                            <span class="badge badge-soft-primary">@subject.SubjectName</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No subjects assigned</span>
+                                    }
+                                </td>
                                 <td>@classs.StatusText</td>
                                 <td>
-                                    <a id="btnEdit" data-class-id="@classs.ClassId" data-class-name="@classs.ClassName" data-class-status="@classs.Status" class="text-success edit-list edit-list"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                    <a id="btnEdit" data-class-id="@classs.Id" data-class-name="@classs.Name" data-class-status="@classs.Status" data-subjectid="@string.Join(",", classs.Subjects.Select(s => s.SubjectName))" class="text-success edit-list edit-list"><i class="mdi mdi-pencil font-size-18"></i></a>
                                 </td>
                             </tr>
                         }
@@ -68,10 +96,22 @@
             </div>
             <div class="modal-body">
                 <form id="classForm" asp-controller="Master" asp-action="SaveClass" method="post">
-                    <input type="hidden" id="classId" asp-for="Class.ClassId" />
+                    <input type="hidden" id="classId" asp-for="Class.Id" />
                     <div class="mb-3">
                         <label for="className" class="form-label">Class Name</label>
-                        <input type="text" id="className" name="Class.ClassName" asp-for="Class.ClassName" class="form-control" required placeholder="Enter Grade (Eg: Grade 2A)" />
+                        <input type="text" id="className" name="Class.Name" asp-for="Class.Name" class="form-control" required placeholder="Enter Grade (Eg: Grade 2A)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Assign Subjects <span class="text-muted">(Select multiple)</span></label> <br />
+                        <select class="select2 form-control select2-multiple"
+                                multiple="multiple" data-placeholder="Choose ..." asp-for="SelectedSubjectIds" id="selectedSubjects">
+                            @foreach (var subject in Model.Subjects)
+                            {
+                                <option value="@subject.Id">@subject.SubjectName</option>
+                            }
+                        </select>
+
                     </div>
                     <div class="mb-3">
                         <label for="roleName" class="form-label">Status</label>
@@ -91,6 +131,7 @@
 </div>
 
 @section scripts {
+    <script src="~/assets/libs/select2/js/select2.min.js"></script>
     <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
@@ -109,5 +150,7 @@
                 toastElement.show();
             }
         });
+
+
     </script>
 }

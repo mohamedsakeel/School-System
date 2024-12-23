@@ -13,13 +13,10 @@ namespace SMS.Domain.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ClassId { get; set; }
-        [Required]
-        public string ClassName { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; } // Example: "Grade 2"
         public DateTime EnteredDate { get; set; }
+        public string EnteredBy { get; set; }
         public bool Status { get; set; }
-        public ICollection<Student> Students { get; set; } = new List<Student>();
-        public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
-        public ICollection<ClassExamStructure> ClassExamStructures { get; set; } = new List<ClassExamStructure>();
     }
 }

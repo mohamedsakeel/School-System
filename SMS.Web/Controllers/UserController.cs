@@ -10,9 +10,11 @@ using System.Text;
 using SMS.Domain.Entities;
 using AutoMapper;
 using SMS.AppCore.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SMS.Web.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepo;
@@ -75,6 +77,8 @@ namespace SMS.Web.Controllers
 
             return View();
         }
+
+
 
         
 

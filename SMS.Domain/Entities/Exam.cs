@@ -8,18 +8,16 @@ using System.Threading.Tasks;
 
 namespace SMS.Domain.Entities
 {
-    public class SubjectAssignment
+    public class Exam
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int SubjectAssignmentId { get; set; }
-        [Required]
-        public int TeacherId { get; set; }
-
-        [ForeignKey("TeacherId")]
-        public Teacher Teacher { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; } // Example: "First Term"
+        public int Year { get; set; }
         public DateTime EnteredDate { get; set; }
         public string EnteredBy { get; set; }
         public bool Status { get; set; }
     }
+
 }

@@ -17,5 +17,6 @@ namespace SMS.AppCore
             INSERTNOTALLOWED = 5,
 
         }
+
     }
 }
