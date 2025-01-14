@@ -39,6 +39,8 @@ namespace SMS.AppCore.MapProfiles
 
             CreateMap<Exam, ExamDTO>().ReverseMap();
 
+            CreateMap<TeacherClassSubject, TeacherDTO>().ReverseMap();
+
 
         }
     }

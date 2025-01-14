@@ -92,8 +92,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            @foreach(var item in Model.Students){
+                        
+                        @foreach(var item in Model.Students){
+                            <tr>
                                 <td></td>
                                 <td>@item.IndexNo</td>
                                 <td>@item.FirstName @item.LastName</td>
@@ -102,9 +103,10 @@
                                 <td>@item.PhoneNumber</td>
                                 <td>@item.DateOfBirth.ToString("d")</td>
                                 <td>@item.Status</td>
-                            }
+                            </tr>
+                        }
                             
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>

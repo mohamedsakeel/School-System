@@ -54,6 +54,26 @@ namespace SMS.AppCore.Repositories
             return userDTOs;
         }
 
+        //GetUser by role only teachers get only fullname and id
+        public async Task<IEnumerable<UserDTO>> GetUsersByRoleAsync(string roleName)
+        {
+            var users = await _userManager.GetUsersInRoleAsync(roleName);
+            var userDTOs = new List<UserDTO>();
+            foreach (var user in users)
+            {
+                userDTOs.Add(new UserDTO
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber
+                });
+            }
+            return userDTOs;
+        }
+
+
         public async Task<bool> SaveUserAsync(UserDTO userDto, string roleId)
         {
             ApplicationUser user;
@@ -73,8 +93,8 @@ namespace SMS.AppCore.Repositories
 
                 var updateResult = await _userManager.UpdateAsync(user);
 
-                if (updateResult.Succeeded)
-                    return true;
+                if (!updateResult.Succeeded)
+                    return false;
             }
             else
             {
@@ -87,11 +107,13 @@ namespace SMS.AppCore.Repositories
                     LastName = userDto.LastName,
                     PhoneNumber = userDto.PhoneNumber
                 };
+
+                var createResult = await _userManager.CreateAsync(user, userDto.Password);
+                if (!createResult.Succeeded)
+                    return false;
             }
 
-            var createResult = await _userManager.CreateAsync(user, userDto.Password);
-            if (createResult.Succeeded)
-                return true;
+            
 
             var RoleNames = await _roleManager.Roles.Where(r => r.Id == roleId).Select(r => r.Name).ToListAsync();
 

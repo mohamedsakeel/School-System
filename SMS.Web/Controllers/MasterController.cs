@@ -7,6 +7,7 @@ using System.Security.Claims;
 using SMS.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using SMS.AppCore.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace SMS.Web.Controllers
 {
@@ -17,18 +18,27 @@ namespace SMS.Web.Controllers
         private readonly IStudentRepository _studentRepo;
         private readonly ISubjectRepository _subjectRepo;
         private readonly IExamRepository _examRepo;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserRepository _userRepo;
+        private readonly IAssignTeacherClassSubjectRepository _assignTeacherRepo;
         private readonly IMapper _mapper;
         public MasterController(IClassRepository classRepo,
                                 IMapper mapper,
                                 IStudentRepository studentRepo,
                                 ISubjectRepository subjectRepo,
-                                IExamRepository examRepo)
+                                IExamRepository examRepo,
+                                UserManager<ApplicationUser> userManager,
+                                IUserRepository userRepo,
+                                IAssignTeacherClassSubjectRepository assignTeacherRepo)
         {
             _classRepo = classRepo;
             _mapper = mapper;
             _studentRepo = studentRepo;
             _subjectRepo = subjectRepo;
             _examRepo = examRepo;
+            _userManager = userManager;
+            _userRepo = userRepo;
+            _assignTeacherRepo = assignTeacherRepo;
         }
 
         public async Task<IActionResult> ClassMaster()
@@ -182,6 +192,49 @@ namespace SMS.Web.Controllers
             }
 
             return RedirectToAction("ExamMaster");
+        }
+
+        public async Task<IActionResult> TeacherMaster()
+        {
+            TeacherViewModel VM = new TeacherViewModel();
+
+            var _teachers = await _userRepo.GetUsersByRoleAsync("Teacher");
+            VM.Teachers = _mapper.Map<IEnumerable<UserDTO>>(_teachers);
+
+            var _class = await _classRepo.GetAllClassAsync();
+            VM.Classes = _mapper.Map<IEnumerable<ClassDTO>>(_class);
+
+            var _subjects = await _subjectRepo.GetAllSubjectAsync();
+            VM.Subjects = _mapper.Map<IEnumerable<SubjectDTO>>(_subjects);
+
+            var teacherAssignments = await _assignTeacherRepo.GetTeacherAssignmentsAsync();
+            VM.TeacherAssignments = teacherAssignments;
+
+            return View(VM);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveTeacher(TeacherViewModel model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
+            DBResultStatus res = await _assignTeacherRepo.SaveTeacherAssignmentsAsync(model.SelectedTeacher, model.SelectedClasses, model.SelectedSubjects);
+
+            if (res == DBResultStatus.SUCCESS)
+            {
+                TempData["Toast"] = "Teacher assigned / updated successfully";
+            }
+            else if (res == DBResultStatus.ERROR || res == DBResultStatus.DBERROR)
+            {
+                TempData["Toast"] = "Something went wrong!";
+            }
+            else if (res == DBResultStatus.DUPLICATE)
+            {
+                TempData["Toast"] = "Record already exists";
+            }
+
+            return RedirectToAction("TeacherMaster");
         }
     }
 }

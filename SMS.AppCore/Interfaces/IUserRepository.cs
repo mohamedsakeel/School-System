@@ -11,5 +11,6 @@ namespace SMS.AppCore.Interfaces
         Task<IdentityRole> GetRoleByIdAsync(string roleId);
         Task SaveRoleAsync(string roleId, string roleName);
         Task<bool> SaveUserAsync(UserDTO userDto, string roleId);
+        Task<IEnumerable<UserDTO>> GetUsersByRoleAsync(string roleName);
     }
 }
