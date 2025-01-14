@@ -125,12 +125,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="RoleId" class="form-label">Role</label>
-                        <select asp-for="RoleId" class="form-select" id="role" name="SelectedRole">
+                        <label asp-for="User.RoleId" class="form-label">Role</label>
+                        <select asp-for="User.RoleId" class="form-select" id="role">
                             <option value="">Select Role</option>
                             @foreach (var role in Model.Roles)
                             {
-                                <option value="@role.Name">@role.Name</option>
+                                <option value="@role.Id">@role.Name</option>
                             }
                         </select>
 

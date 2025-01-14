@@ -1,0 +1,153 @@
+﻿@model SMS.AppCore.DTOs.TeacherViewModel
+
+@{
+    ViewBag.Title = "Master Files";
+    ViewBag.pTitle = "Teacher Master";
+    ViewBag.pageTitle = "Teacher Master";
+    ViewData["Title"] = "Teacher Master";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles {
+    <link href="~/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <!-- DataTables -->
+    <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link href="~/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body border-bottom">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 card-title flex-grow-1">Teacher Master</h5>
+                    <div class="flex-shrink-0">
+                        <a href="#teacherModal" data-bs-toggle="modal" data-action="create" class="btn btn-primary">Assign Teacher</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Teacher Name</th>
+                            <th>Assigned Class</th>
+                            <th>Assigned Subjects</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var teacher in Model.TeacherAssignments)
+                        {
+                            <tr>
+                                <td>@teacher.TeacherName</td>
+                                <td>
+                                    @foreach (var className in teacher.AssignedClasses)
+                                    {
+                                        <span class="badge badge-soft-primary">@className</span>
+                                    }
+                                </td>
+                                <td>
+                                    @foreach (var subjectName in teacher.AssignedSubjects)
+                                    {
+                                        <span class="badge badge-soft-primary">@subjectName</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a id="btnEdit"
+                                       data-teacher-id="@teacher.TeacherId"
+                                       data-teacher-name="@teacher.TeacherName"
+                                       data-class-names="@string.Join(",", teacher.AssignedClasses)"
+                                       data-subject-names="@string.Join(",", teacher.AssignedSubjects)"
+                                       class="text-success edit-list">
+                                        <i class="mdi mdi-pencil font-size-18"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Role Modal *@
+<div class="modal fade" id="teacherModal" tabindex="-1" aria-labelledby="teacherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleModalLabel">Assign Teacher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="classForm" asp-controller="Master" asp-action="SaveTeacher" method="post">
+                    <input type="hidden" id="teacherId" asp-for="TeacherClass.TeacherId" />
+                    <div class="mb-3">
+                        <select class="form-select" id="teacherid" asp-for="SelectedTeacher">
+                            <option value="">Select Teacher</option>
+                            @foreach (var teacher in Model.Teachers)
+                            {
+                                <option value="@teacher.Id">@teacher.FirstName @teacher.LastName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Classes <span class="text-muted">(Select multiple)</span></label> <br />
+                        <select class="select2 form-control select2-multiple"
+                                multiple="multiple" data-placeholder="Choose ..." asp-for="SelectedClasses" id="SelectedClasses">
+                            @foreach (var subject in Model.Classes)
+                            {
+                                <option value="@subject.Id">@subject.Name</option>
+                            }
+                        </select>
+
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Subjects <span class="text-muted">(Select multiple)</span></label> <br />
+                        <select class="select2 form-control select2-multiple"
+                                multiple="multiple" data-placeholder="Choose ..." asp-for="SelectedSubjects" id="SelectedSubjects">
+                            @foreach (var subject in Model.Subjects)
+                            {
+                                <option value="@subject.Id">@subject.SubjectName</option>
+                            }
+                        </select>
+
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/assets/libs/select2/js/select2.min.js"></script>
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/assets/js/pages/datatables.init.js"></script>
+
+    <script src="~/assets/js/TeacherMaster.js"></script>
+    <script src="~/assets/js/app.js"></script>
+
+    <script src="~/assets/js/pages/bootstrap-toastr.init.js"></script>
+    <script>
+        console.log("Toasy");
+        $(document).ready(function () {
+            if ('@TempData["Toast"]') {
+                var toastElement = new bootstrap.Toast(document.getElementById('liveToast'));
+                toastElement.show();
+            }
+        });
+    </script>
+}

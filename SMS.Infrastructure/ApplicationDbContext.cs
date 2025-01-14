@@ -30,6 +30,8 @@ namespace SMS.Infrastructure
         public DbSet<ExamMarks> ExamMarks { get; set; }
         public DbSet<StudentElectiveSubject> StudentElectiveSubjects { get; set; }
         public DbSet<TeacherClassSubject> TeacherClassSubjects { get; set; }
+        public DbSet<ExamInitiation> ExamInitiation { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

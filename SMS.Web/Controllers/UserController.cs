@@ -61,7 +61,7 @@ namespace SMS.Web.Controllers
             var defaultPassword = GenerateRandomPassword();
             model.User.Password = defaultPassword;
 
-            var result = await _userRepo.SaveUserAsync(model.User, model.RoleId);
+            var result = await _userRepo.SaveUserAsync(model.User, model.User.RoleId);
 
             if (result)
             {
