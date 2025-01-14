@@ -3,61 +3,138 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master # Trigger on push to main branch
+      - master  # Trigger on push to main branch
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
+      # 1. Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'  # Specify the Node.js version compatible with your project
+
+      # 3. Cache npm Dependencies
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            SMS.Web\node_modules
+            SMS.Web\npm-cache
+          key: ${{ runner.os }}-npm-${{ hashFiles('SMS.Web/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      # 4. Install npm Dependencies
+      - name: Install npm Dependencies
+        run: |
+          cd SMS.Web  # Navigate to the directory containing package.json
+          npm install
+
+      # 5. (Optional) Build Frontend Assets
+      # Uncomment and modify the following step if your project requires building frontend assets
+      # - name: Build Frontend Assets
+      #   run: |
+      #     cd SMS.Web
+      #     npm run build
+
+      # 6. Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: '8.0.x'  # Ensure this matches your project's target .NET version
 
-      - name: Restore Dependencies
-        run: dotnet restore
+      # 7. Cache .NET Dependencies
+      - name: Cache .NET packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      # 8. Restore .NET Dependencies
+      - name: Restore .NET Dependencies
+        run: |
+          cd SMS.Web
+          dotnet restore
 
-      - name: Publish
-        run: dotnet publish --configuration Release --output publish --no-build
+      # 9. Run Unit Tests (Optional but Recommended)
+      - name: Run Unit Tests
+        run: |
+          cd SMS.Web
+          dotnet test --no-build --verbosity normal
 
-      - name: Upload Artifact
+      # 10. Build the Project
+      - name: Build Project
+        run: |
+          cd SMS.Web
+          dotnet build --configuration Release --no-restore
+
+      # 11. Publish the Project
+      - name: Publish Project
+        run: |
+          cd SMS.Web
+          dotnet publish --configuration Release --output publish --no-build
+
+      # 12. Upload Publish Artifact
+      - name: Upload Publish Artifact
         uses: actions/upload-artifact@v3
         with:
           name: publish
-          path: publish
+          path: SMS.Web\publish
 
   deploy:
     needs: build
-    runs-on: self-hosted # Uses the self-hosted runner on your Windows Server
+    runs-on: self-hosted  # Uses the self-hosted runner on your Windows Server
 
     steps:
-      - name: Download Artifact
+      # 1. Download Publish Artifact
+      - name: Download Publish Artifact
         uses: actions/download-artifact@v3
         with:
           name: publish
           path: C:\GitHubActions\publish
 
+      # 2. Deploy to IIS
       - name: Deploy to IIS
         run: |
-          Stop-Service -Name 'w3svc'
-          # Remove old files
-          Remove-Item -Recurse -Force "C:\inetpub\wwwroot\SchoolMgtSystem\Publish\*" 
-          # Copy new files
-          Copy-Item -Recurse -Path "C:\GitHubActions\publish\*" -Destination "C:\inetpub\wwwroot\SchoolMgtSystem\Publish\" 
-          # Start IIS
-          Start-Service -Name 'w3svc'
+          try {
+              # Stop IIS service
+              Stop-Service -Name 'w3svc' -ErrorAction Stop
+
+              # Remove old files
+              Remove-Item -Recurse -Force "C:\inetpub\wwwroot\SchoolMgtSystem\Publish\*" -ErrorAction Stop
+
+              # Copy new files
+              Copy-Item -Recurse -Path "C:\GitHubActions\publish\*" -Destination "C:\inetpub\wwwroot\SchoolMgtSystem\Publish\" -ErrorAction Stop
+
+              # Start IIS service
+              Start-Service -Name 'w3svc' -ErrorAction Stop
+          }
+          catch {
+              Write-Error "Deployment failed: $_"
+              exit 1
+          }
         shell: powershell
 
+      # 3. Restart IIS Site and Application Pool
       - name: Restart IIS Site
         run: |
-          Import-Module WebAdministration
-          Restart-WebAppPool -Name "SchoolManagementSystem"
-          Restart-WebSite -Name "SchoolManagementSystem"
+          try {
+              Import-Module WebAdministration -ErrorAction Stop
+              Restart-WebAppPool -Name "SchoolManagementSystem" -ErrorAction Stop
+              Restart-WebSite -Name "SchoolManagementSystem" -ErrorAction Stop
+          }
+          catch {
+              Write-Error "Failed to restart IIS site or application pool: $_"
+              exit 1
+          }
         shell: powershell
