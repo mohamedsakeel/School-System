@@ -50,6 +50,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'  # Ensure this matches your project's target .NET version
 
+      # 7. Verify .NET SDK Version
+      - name: Verify .NET SDK Version
+        run: dotnet --version
+
       # 7. Cache .NET Dependencies
       - name: Cache .NET packages
         uses: actions/cache@v3
