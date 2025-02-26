@@ -196,19 +196,13 @@ namespace SMS.Web.Controllers
 
         public async Task<IActionResult> TeacherMaster()
         {
-            TeacherViewModel VM = new TeacherViewModel();
-
-            var _teachers = await _userRepo.GetUsersByRoleAsync("Teacher");
-            VM.Teachers = _mapper.Map<IEnumerable<UserDTO>>(_teachers);
-
-            var _class = await _classRepo.GetAllClassAsync();
-            VM.Classes = _mapper.Map<IEnumerable<ClassDTO>>(_class);
-
-            var _subjects = await _subjectRepo.GetAllSubjectAsync();
-            VM.Subjects = _mapper.Map<IEnumerable<SubjectDTO>>(_subjects);
-
-            var teacherAssignments = await _assignTeacherRepo.GetTeacherAssignmentsAsync();
-            VM.TeacherAssignments = teacherAssignments;
+            TeacherViewModel VM = new TeacherViewModel
+            {
+                Teachers = _mapper.Map<IEnumerable<UserDTO>>(await _userRepo.GetUsersByRoleAsync("Teacher")),
+                Classes = _mapper.Map<IEnumerable<ClassDTO>>(await _classRepo.GetAllClassAsync()),
+                Subjects = _mapper.Map<IEnumerable<SubjectDTO>>(await _subjectRepo.GetAllSubjectAsync()),
+                TeacherAssignments = await _assignTeacherRepo.GetTeacherAssignmentsAsync()
+            };
 
             return View(VM);
         }
@@ -218,23 +212,31 @@ namespace SMS.Web.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-
-            DBResultStatus res = await _assignTeacherRepo.SaveTeacherAssignmentsAsync(model.SelectedTeacher, model.SelectedClasses, model.SelectedSubjects);
-
-            if (res == DBResultStatus.SUCCESS)
+            foreach (var selection in model.ClassSubjectSelections)
             {
-                TempData["Toast"] = "Teacher assigned / updated successfully";
-            }
-            else if (res == DBResultStatus.ERROR || res == DBResultStatus.DBERROR)
-            {
-                TempData["Toast"] = "Something went wrong!";
-            }
-            else if (res == DBResultStatus.DUPLICATE)
-            {
-                TempData["Toast"] = "Record already exists";
+                foreach (var subjectId in selection.SubjectIds)
+                {
+                    var res = await _assignTeacherRepo.SaveTeacherAssignmentsAsync(
+                        model.SelectedTeacher, new List<string> { selection.ClassId.ToString() }, new List<string> { subjectId.ToString() }
+                    );
+
+                    if (res != DBResultStatus.SUCCESS)
+                    {
+                        TempData["Toast"] = "Error in assigning teacher";
+                        return RedirectToAction("TeacherMaster");
+                    }
+                }
             }
 
+            TempData["Toast"] = "Teacher assigned successfully";
             return RedirectToAction("TeacherMaster");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSubjectsByClass(int classId)
+        {
+            var subjects = await _subjectRepo.GetSubjectsByClassIdAsync(classId);
+            return Json(subjects);
         }
     }
 }

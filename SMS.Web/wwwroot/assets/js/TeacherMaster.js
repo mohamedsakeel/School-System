@@ -61,3 +61,62 @@ document.getElementById('teacherModal').addEventListener('hidden.bs.modal', func
     form.reset();
 });
 
+let index = 1;
+
+// Add new class-subject dropdown set
+$("#addClassSubject").click(function () {
+    const newPair = `
+                <div class="class-subject-pair row mb-3">
+                <div class="col-md-5">
+                    <label>Class</label>
+                    <select class="form-select class-dropdown" name="ClassSubjectSelections[${index}].ClassId">
+                        <option value="">Select Class</option>
+                        @foreach (var cls in Model.Classes)
+                        {
+                            <option value="@cls.Id">@cls.Name</option>
+                        }
+                    </select>
+                    </div>
+                    <div class="col-md-6">
+                    <label>Subjects</label>
+                    <select class="select2 form-control select2-multiple subject-dropdown" name="ClassSubjectSelections[${index}].SubjectIds" multiple="multiple">
+                        <option value="">Select Subject</option>
+                    </select>
+                    </div>
+
+                    <div class="col-md-1 d-flex align-items-end">
+            <button type="button" class="btn btn-danger remove-pair">X</button>
+        </div>
+                </div>`;
+
+    $("#classSubjectContainer").append(newPair);
+    index++;
+
+    $('.select2').select2({
+        dropdownParent: $('#teacherModal')
+    });
+});
+
+// Remove class-subject dropdown set
+$(document).on("click", ".remove-pair", function () {
+    $(this).closest(".class-subject-pair").remove();
+});
+
+// Load subjects when class is selected
+$(document).on("change", ".class-dropdown", function () {
+    const classId = $(this).val();
+    const subjectDropdown = $(this).closest(".class-subject-pair").find(".subject-dropdown");
+
+    $.ajax({
+        url: '/Master/GetSubjectsByClass',
+        type: 'GET',
+        data: { classId: classId },
+        success: function (data) {
+            subjectDropdown.empty();
+            $.each(data, function (index, subject) {
+                subjectDropdown.append(`<option value="${subject.id}">${subject.subjectName}</option>`);
+            });
+        }
+    });
+});
+

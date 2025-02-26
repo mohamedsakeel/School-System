@@ -1,4 +1,5 @@
-﻿using SMS.Domain.Entities;
+﻿using SMS.AppCore.DTOs;
+using SMS.Domain.Entities;
 
 namespace SMS.AppCore.Repositories
 {
@@ -7,5 +8,6 @@ namespace SMS.AppCore.Repositories
         Task<IEnumerable<Subject>> GetAllSubjectAsync();
         Task<Subject> GetSubjectById(int Id);
         Task<Enumerations.DBResultStatus> SaveSubject(Subject Model);
+        Task<IEnumerable<SubjectDTO>> GetSubjectsByClassIdAsync(int classId);
     }
 }

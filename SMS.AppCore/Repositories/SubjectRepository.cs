@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SMS.AppCore.DTOs;
 using SMS.Domain.Entities;
 using SMS.Infrastructure;
 using System;
@@ -28,6 +29,20 @@ namespace SMS.AppCore.Repositories
         {
             return await _dbContext.Subjects.AsNoTracking().FirstOrDefaultAsync(s => s.Id == Id);
         }
+
+        public async Task<IEnumerable<SubjectDTO>> GetSubjectsByClassIdAsync(int classId)
+        {
+            return await (from c in _dbContext.ClassSubjects
+                         join s in _dbContext.Subjects on c.SubjectId equals s.Id
+                         where c.ClassId == classId
+                         select new SubjectDTO
+                        {
+                            Id = s.Id,
+                            SubjectName = s.SubjectName
+                        })
+                        .ToListAsync();
+        }
+
 
         public async Task<DBResultStatus> SaveSubject(Subject Model)
         {

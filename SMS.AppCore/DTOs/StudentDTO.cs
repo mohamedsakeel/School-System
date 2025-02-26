@@ -19,6 +19,7 @@ namespace SMS.AppCore.DTOs
         public string ClassName { get; set; }
         public DateTime EnteredDate { get; set; }
         public string EnteredBy { get; set; }
+        public string? FullName { get; set; }
         public bool Status { get; set; }
         public string StatusText
         {

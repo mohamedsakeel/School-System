@@ -55,12 +55,12 @@ namespace SMS.AppCore.Repositories
             await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task<ExamInitiationDto?> GetActiveExamAsync()
+        public async Task<ExamInitiationDTO?> GetActiveExamAsync() 
         {
             return await (from initiation in _dbcontext.ExamInitiation
                           join exam in _dbcontext.Exams on initiation.ExamId equals exam.Id
                           where initiation.IsInitiated
-                          select new ExamInitiationDto
+                          select new ExamInitiationDTO
                           {
                               Id = initiation.Id,
                               ExamId = initiation.ExamId,

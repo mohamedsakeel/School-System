@@ -31,6 +31,7 @@ namespace SMS.AppCore.DTOs
         public List<string> SelectedSubjects { get; set; } = new List<string>();
         public string SelectedTeacher { get; set; }
         public IEnumerable<TeacherAssignmentDTO> TeacherAssignments { get; set; } = new List<TeacherAssignmentDTO>();
+        public List<ClassSubjectSelection> ClassSubjectSelections { get; set; } = new List<ClassSubjectSelection>();
     }
 
     public class TeacherAssignmentDTO
@@ -39,5 +40,11 @@ namespace SMS.AppCore.DTOs
         public string TeacherId { get; set; }
         public IEnumerable<string> AssignedClasses { get; set; }
         public IEnumerable<string> AssignedSubjects { get; set; }
+    }
+
+    public class ClassSubjectSelection
+    {
+        public int ClassId { get; set; }
+        public List<int> SubjectIds { get; set; } = new List<int>();
     }
 }

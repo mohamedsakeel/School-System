@@ -36,10 +36,10 @@ namespace SMS.AppCore.Repositories
                 .GroupBy(t => t.TeacherId)
                 .Select(g =>
                 {
-                    var teacher = teachers.FirstOrDefault(t => t.Id == g.Key); // Match teacher by ID
+                    var teacher = teachers.FirstOrDefault(t => t.Id == g.Key);
                     return new TeacherAssignmentDTO
                     {
-                        TeacherId = teacher.Id,
+                        TeacherId = teacher?.Id ?? "Unknown",
                         TeacherName = teacher != null ? $"{teacher.FirstName} {teacher.LastName}" : "Unknown",
                         AssignedClasses = g.Select(t => classes.FirstOrDefault(c => c.Id == t.ClassId)?.Name ?? "Unknown").Distinct(),
                         AssignedSubjects = g.Select(t => subjects.FirstOrDefault(s => s.Id == t.SubjectId)?.SubjectName ?? "Unknown").Distinct()

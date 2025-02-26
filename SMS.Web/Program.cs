@@ -48,6 +48,9 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IExamRepository, ExamRepository>();
 builder.Services.AddScoped<IAssignTeacherClassSubjectRepository, AssignTeacherClassSubjectRepository>();
 
+//Operation
+builder.Services.AddScoped<IEnterMarksRepository, EnterMarksRepository>();
+
 //DTO Map
 builder.Services.AddAutoMapper(new[] { typeof(Program), typeof(DTOProfileMap) });
 

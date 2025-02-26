@@ -1,0 +1,31 @@
+﻿@model SMS.AppCore.DTOs.ClassSubjectMarksDTO
+
+<h2>Enter Marks for @Model.ClassName</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            @foreach (var subject in Model.SubjectsList)
+            {
+                <th>@subject.SubjectName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model.Students)
+        {
+            <tr>
+                <td>@student.FullName (@student.IndexNo)</td>
+                @foreach (var subject in Model.SubjectsList)
+                {
+                    <td>
+                        <input type="number" name="marks[@student.Id][@subject.Id]" class="form-control" min="0" max="100" />
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button type="submit" class="btn btn-primary">Save Marks</button>

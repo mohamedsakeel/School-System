@@ -28,4 +28,6 @@ namespace SMS.AppCore.DTOs
         public ExamDTO Exam { get; set; }
         public IEnumerable<ExamDTO> Exams { get; set; } = new List<ExamDTO>();
     }
+
+
 }
