@@ -2,30 +2,33 @@
 
 <h2>Enter Marks for @Model.ClassName</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Student Name</th>
-            @foreach (var subject in Model.SubjectsList)
-            {
-                <th>@subject.SubjectName</th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var student in Model.Students)
-        {
+<form method="post" asp-action="SaveMarks" asp-controller="Operations">
+    <input type="hidden" name="ClassId" value="@Model.ClassId" />
+    <table class="table table-bordered">
+        <thead>
             <tr>
-                <td>@student.FullName (@student.IndexNo)</td>
+                <th>Student Name</th>
                 @foreach (var subject in Model.SubjectsList)
                 {
-                    <td>
-                        <input type="number" name="marks[@student.Id][@subject.Id]" class="form-control" min="0" max="100" />
-                    </td>
+                    <th>@subject.SubjectName</th>
                 }
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var student in Model.Students)
+            {
+                <tr>
+                    <td>@student.FullName (@student.IndexNo)</td>
+                    @foreach (var subject in Model.SubjectsList)
+                    {
+                        <td>
+                            <input type="number" name="Marks[@student.Id][@subject.Id]" value="@student.Marks[subject.Id]" class="form-control" max="100" min="0"/>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<button type="submit" class="btn btn-primary">Save Marks</button>
+    <button type="submit" class="btn btn-primary">Save Marks</button>
+</form>

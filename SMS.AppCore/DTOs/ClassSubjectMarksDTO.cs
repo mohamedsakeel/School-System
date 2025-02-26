@@ -12,7 +12,7 @@ namespace SMS.AppCore.DTOs
         public int ClassId { get; set; }
         public List<SubjectDTO> SubjectsList { get; set; } = new List<SubjectDTO>();
         public List<string> Subjects { get; set; } = new List<string>();
-        public List<StudentDTO> Students { get; set; } = new List<StudentDTO>();
+        public List<StudentMarksDTO> Students { get; set; } = new List<StudentMarksDTO>();
         public string TeacherName { get; set; }
         public int CompletionPercentage { get; set; }
     }

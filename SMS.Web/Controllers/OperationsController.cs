@@ -69,5 +69,21 @@ namespace SMS.Web.Controllers
 
             return View(viewModel);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveMarks(SaveMarksDTO model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            bool IsSaved = await _enterMarksRepo.SaveMarks(model);
+
+            if (!IsSaved)
+            {
+                return BadRequest();
+            }
+
+            return RedirectToAction("EnterMarks", new { classId = model.ClassId });
+
+        }
     }
 }
