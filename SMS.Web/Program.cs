@@ -10,6 +10,7 @@ using SMS.Domain.Entities;
 using SMS.Infrastructure;
 using SMS.Notification;
 using SMS.Web.Services;
+using Syncfusion.Licensing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,9 +51,12 @@ builder.Services.AddScoped<IAssignTeacherClassSubjectRepository, AssignTeacherCl
 
 //Operation
 builder.Services.AddScoped<IEnterMarksRepository, EnterMarksRepository>();
+builder.Services.AddScoped<IStudentReportRepository, StudentReportRepository>();
 
 //DTO Map
 builder.Services.AddAutoMapper(new[] { typeof(Program), typeof(DTOProfileMap) });
+
+
 
 //Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -103,6 +107,10 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+//Register Syncfusion license
+SyncfusionLicenseProvider.RegisterLicense("Mgo+DSMBMAY9C3t2XVhhQlJHfV5AQmBIYVp/TGpJfl96cVxMZVVBJAtUQF1hTH5RdEJiW39edHZRRmRV");
+bool isValid = SyncfusionLicenseProvider.ValidateLicense(Platform.ASPNETCore);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

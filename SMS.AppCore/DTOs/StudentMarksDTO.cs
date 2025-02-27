@@ -11,7 +11,7 @@ namespace SMS.AppCore.DTOs
         public int Id { get; set; }
         public int IndexNo { get; set; }
         public string FullName { get; set; }
-        public Dictionary<int, int> Marks { get; set; } = new Dictionary<int, int>(); // SubjectId -> Marks
+        public Dictionary<int, int?> Marks { get; set; } = new Dictionary<int, int?>(); // SubjectId -> Marks
     }
 
 }

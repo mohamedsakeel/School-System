@@ -98,7 +98,7 @@
                 <!-- Rectangle Card -->
                 <div class="card h-100 border-0 shadow-sm clickable-card d-flex flex-row align-items-center"
                      data-class-id="@classSubject.ClassId"
-                     onclick="handleCardClick(@classSubject.ClassId, '@classSubject.ClassName')"
+                     onclick="handleCardClick(@classSubject.ClassId, '@classSubject.ClassName', @classSubject.CompletionPercentage)"
                      style="border-radius: 12px;">
                     <!-- First Column: Progress Circle -->
                     <div class="d-flex flex-column justify-content-center align-items-center progress-column p-3">
@@ -170,11 +170,11 @@
         </script>
 
         <script>
-            function handleCardClick(classId, className) {
+            function handleCardClick(classId, className, compercentage) {
                 // Optional Confirmation (for user feedback):
                 if (confirm(`Do you want to enter marks for the class "${className}"?`)) {
                     // Redirect to the marks entry page with the classId as a query parameter
-                    window.location.href = `EnterMarks?classId=${classId}`;
+            window.location.href = `EnterMarks?classId=${classId}&CompPercentage=${compercentage}`;
                 }
             }
         </script>

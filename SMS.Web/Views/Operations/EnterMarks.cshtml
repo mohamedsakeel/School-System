@@ -22,7 +22,9 @@
                     @foreach (var subject in Model.SubjectsList)
                     {
                         <td>
-                            <input type="number" name="Marks[@student.Id][@subject.Id]" value="@student.Marks[subject.Id]" class="form-control" max="100" min="0"/>
+                            <input type="number" name="Marks[@student.Id][@subject.Id]"
+                                   value="@(student.Marks.ContainsKey(subject.Id) && student.Marks[subject.Id].HasValue ? student.Marks[subject.Id].Value.ToString() : "")"
+                                   class="form-control" max="100" min="0" />
                         </td>
                     }
                 </tr>
@@ -32,3 +34,52 @@
 
     <button type="submit" class="btn btn-primary">Save Marks</button>
 </form>
+
+@{
+    var studentIds = Model.Students.Select(s => s.Id).ToList();
+    var classId = Model.ClassId;
+}
+
+@* from the viewbag get the CompPercentage and if it is 100 display a button else not *@
+@if (ViewBag.CompPercentage != null && ViewBag.CompPercentage == 100)
+{
+    <button class="btn btn-info mt-2" id="generateReportsBtn">Generate Reports</button>
+}
+
+@section scripts {
+    <script src="~/assets/libs/select2/js/select2.min.js"></script>
+    <script src="~/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/assets/js/pages/datatables.init.js"></script>
+
+    
+    <script src="~/assets/js/app.js"></script>
+
+    <script src="~/assets/js/pages/bootstrap-toastr.init.js"></script>
+    <script>
+        console.log("Toasy");
+        $(document).ready(function () {
+            if ('@TempData["Toast"]') {
+                var toastElement = new bootstrap.Toast(document.getElementById('liveToast'));
+                toastElement.show();
+            }
+        });
+
+            document.getElementById("generateReportsBtn").addEventListener("click", function () {
+            var studentIds = @Html.Raw(Json.Serialize(studentIds)); // List of student IDs
+            var classId = @Model.ClassId;
+
+            // Call the class master report API once
+            generateClassMasterReport(classId);
+
+            // Loop through each student and generate the individual reports
+            studentIds.forEach(function (studentId) {
+                generateStudentReport(studentId, classId);
+            });
+        });
+    </script>
+
+    <script src="~/assets/js/EnterMarks.js"></script>
+}

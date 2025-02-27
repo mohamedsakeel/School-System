@@ -36,22 +36,46 @@ namespace SMS.AppCore.Repositories
                                            ClassName = classe.Name,
                                            ClassId = classe.Id,
                                            SubjectName = subject.SubjectName,
+                                           SubjectId = subject.Id,
                                            TeacherName = user.FirstName + " " + user.LastName
                                        })
                                .ToListAsync();
 
-            var groupedSubjects = classSubjects
-                .GroupBy(c => new { c.ClassId, c.ClassName, c.TeacherName })
-                .Select(g => new ClassSubjectMarksDTO
+            var groupedSubjects = new List<ClassSubjectMarksDTO>();
+
+            foreach (var group in classSubjects.GroupBy(c => new { c.ClassId, c.ClassName, c.TeacherName }))
+            {
+                var classId = group.Key.ClassId;
+                var subjectIds = group.Select(s => s.SubjectId).ToList();
+
+                var completionPercentage = await CalculateCompletionPercentage(classId, subjectIds);
+
+                groupedSubjects.Add(new ClassSubjectMarksDTO
                 {
-                    ClassId = g.Key.ClassId,
-                    ClassName = g.Key.ClassName,
-                    TeacherName = g.Key.TeacherName,
-                    Subjects = g.Select(s => s.SubjectName).ToList()
-                })
-                .ToList();
+                    ClassId = classId,
+                    ClassName = group.Key.ClassName,
+                    TeacherName = group.Key.TeacherName,
+                    Subjects = group.Select(s => s.SubjectName).ToList(),
+                    CompletionPercentage = completionPercentage
+                });
+            }
 
             return groupedSubjects;
+        }
+
+        private async Task<int> CalculateCompletionPercentage(int classId, List<int> subjectIds)
+        {
+            int totalStudents = await _dbContext.Students.CountAsync(s => s.ClassId == classId);
+            int totalSubjects = subjectIds.Count;
+
+            if (totalStudents == 0 || totalSubjects == 0)
+                return 0;
+
+            int totalMarksEntered = await _dbContext.ExamMarks
+                .Where(m => m.SubjectId != null && m.Score > 0 && subjectIds.Contains(m.SubjectId) && _dbContext.Students.Any(s => s.ClassId == classId && s.Id == m.StudentId))
+                .CountAsync();
+
+            return (int)((totalMarksEntered / (double)(totalStudents * totalSubjects)) * 100);
         }
 
         public async Task<ClassSubjectMarksDTO> GetMarksEntryTableAsync(string userId, int classId, int? examId = null)
@@ -87,9 +111,9 @@ namespace SMS.AppCore.Repositories
                     IndexNo = s.IndexNo,
                     FullName = s.FirstName + " " + s.LastName,
                     Marks = subjects.ToDictionary(
-                sub => sub.Id,
-                sub => existingMarks.FirstOrDefault(m => m.StudentId == s.Id && m.SubjectId == sub.Id)?.Score ?? 0
-            ) // Assign marks if available, otherwise default to 0
+                        sub => sub.Id,
+                        sub => existingMarks.FirstOrDefault(m => m.StudentId == s.Id && m.SubjectId == sub.Id)?.Score
+                    ) // Assign marks if available, otherwise default to 0
                 }).ToList()
 
             };
