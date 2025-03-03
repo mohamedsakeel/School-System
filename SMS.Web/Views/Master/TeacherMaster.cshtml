@@ -88,11 +88,10 @@
             </div>
             <div class="modal-body">
                 <form id="classForm" asp-controller="Master" asp-action="SaveTeacher" method="post">
-                    <input type="hidden" asp-for="SelectedTeacher" id="teacherId" />
+                    <input type="hidden" id="teacherId" asp-for="TeacherClass.TeacherId" />
 
                     <div class="mb-3">
-                        <label>Select Teacher</label>
-                        <select class="form-select" asp-for="SelectedTeacher">
+                        <select class="form-select" id="teacherid" asp-for="SelectedTeacher" required>
                             <option value="">Select Teacher</option>
                             @foreach (var teacher in Model.Teachers)
                             {
@@ -101,30 +100,27 @@
                         </select>
                     </div>
 
-                    <div id="classSubjectContainer">
-                        <div class="class-subject-pair row mb-3">
-                            <div class="col-md-5">
-                                <label>Class</label>
-                                <select class="form-select class-dropdown" name="ClassSubjectSelections[0].ClassId">
-                                    <option value="">Select Class</option>
-                                    @foreach (var cls in Model.Classes)
-                                    {
-                                        <option value="@cls.Id">@cls.Name</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Subjects</label>
-                                <select class="select2 form-control select2-multiple subject-dropdown" name="ClassSubjectSelections[0].SubjectIds" multiple="multiple">
-                                    <option value="">Select Subject</option>
-                                </select>
-                            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Classes <span class="text-muted">(Select multiple)</span></label> <br />
+                        <select class="select2 form-control select2-multiple" required
+                                multiple="multiple" data-placeholder="Choose ..." asp-for="SelectedClasses" id="SelectedClasses">
+                            @foreach (var subject in Model.Classes)
+                            {
+                                <option value="@subject.Id">@subject.Name</option>
+                            }
+                        </select>
 
-                            
-                        </div>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Subjects <span class="text-muted">(Select multiple)</span></label> <br />
+                        <select class="select2 form-control select2-multiple" required
+                                multiple="multiple" data-placeholder="Choose ..." asp-for="SelectedSubjects" id="SelectedSubjects">
+                            @foreach (var subject in Model.Subjects)
+                            {
+                                <option value="@subject.Id">@subject.SubjectName</option>
+                            }
+                        </select>
 
-                    <button type="button" class="btn btn-secondary mb-3" id="addClassSubject">+ Add Another</button>
 
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Save</button>

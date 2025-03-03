@@ -9,6 +9,7 @@ using SMS.AppCore.Repositories;
 using SMS.Domain.Entities;
 using SMS.Infrastructure;
 using SMS.Notification;
+using SMS.Web.Hubs;
 using SMS.Web.Services;
 using Syncfusion.Licensing;
 
@@ -16,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -39,7 +41,7 @@ builder.Services.AddHangfireServer();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-
+builder.Services.AddScoped<IProgressNotifier, ProgressNotifier>();
 
 //Master
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
@@ -116,6 +118,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.MapHub<StudentUploadHub>("/uploadProgressHub"); // Map SignalR Hub
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -58,23 +58,30 @@ namespace SMS.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveUser(UserViewModel model)
         {
-            var defaultPassword = GenerateRandomPassword();
-            model.User.Password = defaultPassword;
-
-            var result = await _userRepo.SaveUserAsync(model.User, model.User.RoleId);
-
-            if (result)
+            if (model.User.Id != null)
             {
-                var userEmailMessage = $"Your account has been created. Your default password is: {defaultPassword}";
-                await _backgroundTasks.SendEmailAsync(model.User.Email, "Your Account Details", userEmailMessage);
-
-                // Send notification to admin
-                var adminEmailMessage = $"A new user has been created:\n\nName: {model.User.FirstName} {model.User.LastName}\nEmail: {model.User.Email}\nDefault Password: {defaultPassword}";
-                await _backgroundTasks.SendEmailAsync(_configuration["EmailSettings:AdminEmail"], "New User Created", adminEmailMessage);
-
+                await _userRepo.SaveUserAsync(model.User, model.User.RoleId);
                 return RedirectToAction("Index", "User");
             }
+            else
+            {
+                var defaultPassword = GenerateRandomPassword();
+                model.User.Password = defaultPassword;
 
+                var result = await _userRepo.SaveUserAsync(model.User, model.User.RoleId);
+
+                if (result)
+                {
+                    var userEmailMessage = $"Your account has been created. Your default password is: {defaultPassword}";
+                    await _backgroundTasks.SendEmailAsync(model.User.Email, "Your Account Details", userEmailMessage);
+
+                    // Send notification to admin
+                    var adminEmailMessage = $"A new user has been created:\n\nName: {model.User.FirstName} {model.User.LastName}\nEmail: {model.User.Email}\nDefault Password: {defaultPassword}";
+                    await _backgroundTasks.SendEmailAsync(_configuration["EmailSettings:AdminEmail"], "New User Created", adminEmailMessage);
+
+                    return RedirectToAction("Index", "User");
+                }
+            }
             return View();
         }
 

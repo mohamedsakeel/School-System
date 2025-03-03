@@ -126,7 +126,7 @@
 
                     <div class="mb-3">
                         <label asp-for="User.RoleId" class="form-label">Role</label>
-                        <select asp-for="User.RoleId" class="form-select" id="role">
+                        <select asp-for="User.RoleId" class="form-select" id="role" required>
                             <option value="">Select Role</option>
                             @foreach (var role in Model.Roles)
                             {

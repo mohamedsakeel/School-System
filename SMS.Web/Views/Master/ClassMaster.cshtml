@@ -104,7 +104,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Assign Subjects <span class="text-muted">(Select multiple)</span></label> <br />
-                        <select class="select2 form-control select2-multiple"
+                        <select class="select2 form-control select2-multiple" required
                                 multiple="multiple" data-placeholder="Choose ..." asp-for="SelectedSubjectIds" id="selectedSubjects">
                             @foreach (var subject in Model.Subjects)
                             {

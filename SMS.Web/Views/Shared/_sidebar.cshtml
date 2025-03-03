@@ -1,92 +1,82 @@
-﻿<!-- ========== Left Sidebar Start ========== -->
+﻿@using Microsoft.AspNetCore.Identity
+@using SMS.Domain.Entities
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject RoleManager<IdentityRole> RoleManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+    var role = roles.FirstOrDefault(); // Assuming one role per user
+}
+
+<!-- ========== Left Sidebar Start ========== -->
 <div class="vertical-menu">
-
     <div data-simplebar class="h-100">
-
-        <!--- Sidemenu -->
         <div id="sidebar-menu">
-            <!-- Left Menu Start -->
             <ul class="metismenu list-unstyled" id="side-menu">
-                <li class="menu-title" key="t-menu">Menu</li>
 
-                <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="bx bx-home-circle"></i>
-                        <span key="t-dashboards">Master Data</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/" key="t-default">Starter Page</a></li>
-                        <li><a href="/Master/StudentMaster" key="t-default">Student</a></li>
-                        <li><a href="/Master/TeacherMaster" key="t-default">Assign Teacher</a></li>
-                        <li><a href="/Master/ClassMaster" key="t-default">Class</a></li>
-                        <li><a href="/Master/SubjectMaster" key="t-default">Subject</a></li>
-                        <li><a href="/Master/ExamMaster" key="t-default">Exam</a></li>
-                    </ul>
-                </li>
+                @if (role == "Admin" || role == "Clerk")
+                {
+                    <li class="menu-title" key="t-menu">Menu</li>
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-home-circle"></i>
+                            <span key="t-dashboards">Master Data</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="/" key="t-default">Starter Page</a></li>
+                            <li><a href="/Master/StudentMaster" key="t-default">Student</a></li>
+                            <li><a href="/Master/TeacherMaster" key="t-default">Assign Teacher</a></li>
+                            <li><a href="/Master/ClassMaster" key="t-default">Class</a></li>
+                            <li><a href="/Master/SubjectMaster" key="t-default">Subject</a></li>
+                            <li><a href="/Master/ExamMaster" key="t-default">Exam</a></li>
+                        </ul>
+                    </li>
 
-                <li class="menu-title" key="t-pages">Operations</li>
+                    <li class="menu-title" key="t-pages">Operations</li>
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-user-circle"></i>
+                            <span key="t-authentication">Operations</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="/Operations/InitiateExam" key="t-login">Initiate Exam</a></li>
+                            <li><a href="/Operations/ExamMarks" key="t-login">Marks Entry</a></li>
+                        </ul>
+                    </li>
 
-                <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="bx bx-user-circle"></i>
-                        <span key="t-authentication">Operations</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/Operations/InitiateExam" key="t-login">Initiate Exam</a></li>
-                        <li><a href="/Operations/ExamMarks" key="t-login">Marks Entry</a></li>
-                    </ul>
-                </li>
+                    <li class="menu-title" key="t-pages">Admin</li>
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-user-circle"></i>
+                            <span key="t-authentication">User Management</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="/User/Index" key="t-login">Users</a></li>
+                            <li><a href="/Role/Index" key="t-login">Roles</a></li>
+                        </ul>
+                    </li>
+                }
 
-                <li class="menu-title" key="t-pages">Admin</li>
-
-                <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="bx bx-user-circle"></i>
-                        <span key="t-authentication">User Management</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/User/Index" key="t-login">Users</a></li>
-                        <li><a href="/Role/Index" key="t-login">Roles</a></li>
-                    </ul>
-                </li>
-
-                @* <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="bx bx-file"></i>
-                        <span key="t-utility">Utility</span>
-                    </a> 
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/pages/pagemaintenance" key="t-maintenance">Maintenance</a></li>
-                        <li><a href="/pages/pagecomingsoon" key="t-coming-soon">Coming Soon</a></li>
-                        <li><a href="/pages/pagetimeline" key="t-timeline">Timeline</a></li>
-                        <li><a href="/pages/pagefaqs" key="t-faqs">FAQs</a></li>
-                        <li><a href="/pages/pagepricing" key="t-pricing">Pricing</a></li>
-                        <li><a href="/pages/page404" key="t-error-404">Error 404</a></li>
-                        <li><a href="/pages/page500" key="t-error-500">Error 500</a></li>
-                    </ul>
-                </li> *@
-
-
-                @* <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="bx bx-share-alt"></i>
-                        <span key="t-multi-level">Multi Level</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="true">
-                        <li><a href="javascript: void(0);" key="t-level-1-1">Level 1.1</a></li>
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Level 1.2</a>
-                            <ul class="sub-menu" aria-expanded="true">
-                                <li><a href="javascript: void(0);" key="t-level-2-1">Level 2.1</a></li>
-                                <li><a href="javascript: void(0);" key="t-level-2-2">Level 2.2</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li> *@
+                @if (role == "Teacher")
+                {
+                    <li class="menu-title" key="t-pages">Operations</li>
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-user-circle"></i>
+                            <span key="t-authentication">Operations</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="/Operations/ExamMarks" key="t-login">Marks Entry</a></li>
+                        </ul>
+                    </li>
+                }
 
             </ul>
         </div>
-        <!-- Sidebar -->
     </div>
 </div>
+
 <!-- Left Sidebar End -->

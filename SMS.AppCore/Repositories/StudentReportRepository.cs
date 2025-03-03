@@ -1,6 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using SMS.AppCore.DTOs;
+using SMS.AppCore.Interfaces;
+using SMS.Domain.Entities;
 using SMS.Infrastructure;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +17,12 @@ namespace SMS.AppCore.Repositories
     public class StudentReportRepository : IStudentReportRepository
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IProgressNotifier _progressNotifier;
 
-        public StudentReportRepository(ApplicationDbContext dbContext)
+        public StudentReportRepository(ApplicationDbContext dbContext, IProgressNotifier progressNotifier)
         {
             _dbContext = dbContext;
+            _progressNotifier = progressNotifier;
         }
 
         public async Task<StudentReportDTO> GetStudentReport(int studentId, int classId)
@@ -34,7 +41,7 @@ namespace SMS.AppCore.Repositories
 
             return new StudentReportDTO
             {
-                StudentId = studentId,
+                StudentId = student.IndexNo,
                 FullName = $"{student.FirstName} {student.LastName}",
                 Marks = subjects.ToDictionary(
                     sub => sub.SubjectName,
@@ -70,5 +77,8 @@ namespace SMS.AppCore.Repositories
 
             return studentReports.OrderByDescending(s => s.TotalMarks).ToList();
         }
+
+        //bulkUpload
+        
     }
 }

@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SMS.AppCore.DTOs;
 using SMS.AppCore.Interfaces;
-using SMS.AppCore.Repositories;
 using Syncfusion.Drawing;
 using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
+using Syncfusion.Pdf.Tables;
 using System.Security.Claims;
 
 namespace SMS.Web.Controllers
@@ -138,42 +138,57 @@ namespace SMS.Web.Controllers
                 PdfPage page = document.Pages.Add();
                 PdfGraphics graphics = page.Graphics;
 
-                // Fonts
-                PdfFont headingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 16, PdfFontStyle.Bold);
-                PdfFont subHeadingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12, PdfFontStyle.Bold);
+                // Define fonts
+                PdfFont headingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 18, PdfFontStyle.Bold);
+                PdfFont subHeadingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 14, PdfFontStyle.Bold);
                 PdfFont bodyFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12);
+                PdfFont tableHeaderFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12, PdfFontStyle.Bold);
 
                 // Starting Y position
-                float y = 20;
+                float y = 30;
 
                 // School Name
-                graphics.DrawString("XYZ School", headingFont, PdfBrushes.Black, new PointF(20, y));
+                graphics.DrawString("XYZ School", headingFont, PdfBrushes.Black, new PointF(200, y));
                 y += 30;
 
                 // Report Title
-                graphics.DrawString("1st Term Exam 2025 Report", subHeadingFont, PdfBrushes.Black, new PointF(20, y));
+                graphics.DrawString("1st Term Exam 2025 Report", subHeadingFont, PdfBrushes.Black, new PointF(180, y));
+                y += 40;
+
+                // Student Details
+                graphics.DrawString($"Student Name: {studentReport.FullName}", bodyFont, PdfBrushes.Black, new PointF(50, y));
+                y += 20;
+                graphics.DrawString($"Grade: {studentReport.Marks}", bodyFont, PdfBrushes.Black, new PointF(50, y));
+                y += 20;
+                graphics.DrawString($"Admission No: {studentReport.StudentId}", bodyFont, PdfBrushes.Black, new PointF(50, y));
                 y += 30;
 
-                // Student Name
-                graphics.DrawString($"Student Name: {studentReport.FullName}", bodyFont, PdfBrushes.Black, new PointF(20, y));
-                y += 20;
+                // Create a Table for Marks
+                PdfLightTable marksTable = new PdfLightTable();
+                marksTable.Style.ShowHeader = true;
+                marksTable.Style.HeaderStyle.Font = tableHeaderFont;
+                marksTable.Style.DefaultStyle.Font = bodyFont;
+                marksTable.Columns.Add(new PdfColumn("Subject"));
+                marksTable.Columns.Add(new PdfColumn("Marks"));
 
-                // Marks for each subject
+                // Add Marks Data to Table
                 foreach (var subject in studentReport.Marks)
                 {
-                    graphics.DrawString($"{subject.Key}: {subject.Value?.ToString() ?? "N/A"}", bodyFont, PdfBrushes.Black, new PointF(20, y));
-                    y += 20;
+                    marksTable.Rows.Add(new string[] { subject.Key, subject.Value?.ToString() ?? "N/A" });
                 }
 
-                // Total Marks, Average, and Rank
-                y += 10;
-                graphics.DrawString($"Total Marks: {studentReport.TotalMarks}", bodyFont, PdfBrushes.Black, new PointF(20, y));
-                y += 20;
-                graphics.DrawString($"Average Marks: {studentReport.AverageMarks:F2}", bodyFont, PdfBrushes.Black, new PointF(20, y));
-                y += 20;
-                graphics.DrawString($"Rank: {studentReport.Rank}", bodyFont, PdfBrushes.Black, new PointF(20, y));
+                // Draw the Table on the PDF
+                marksTable.Draw(page, new PointF(50, y));
+                y += (studentReport.Marks.Count * 20) + 40;
 
-                // Return the PDF as byte array
+                // Total Marks, Average, and Rank
+                graphics.DrawString($"Total Marks: {studentReport.TotalMarks}", bodyFont, PdfBrushes.Black, new PointF(50, y));
+                y += 20;
+                graphics.DrawString($"Average Marks: {studentReport.AverageMarks:F2}", bodyFont, PdfBrushes.Black, new PointF(50, y));
+                y += 20;
+                graphics.DrawString($"Rank: {studentReport.Rank}", bodyFont, PdfBrushes.Black, new PointF(50, y));
+
+                // Save PDF to Memory Stream
                 using (MemoryStream stream = new MemoryStream())
                 {
                     document.Save(stream);
@@ -187,108 +202,110 @@ namespace SMS.Web.Controllers
         {
             using (PdfDocument document = new PdfDocument())
             {
-                // Set page orientation to landscape and apply margins
+                // Set page to landscape and reduce margins for more space
                 document.PageSettings.Orientation = PdfPageOrientation.Landscape;
-                document.PageSettings.Margins.All = 50;
+                document.PageSettings.Margins.All = 20;
 
-                // Create the page and graphics object
+                // Create the first page
                 PdfPage page = document.Pages.Add();
                 PdfGraphics graphics = page.Graphics;
 
-                // Fonts
-                PdfFont headingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 16, PdfFontStyle.Bold);
-                PdfFont subHeadingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12, PdfFontStyle.Bold);
-                PdfFont tableHeaderFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12, PdfFontStyle.Bold);
-                PdfFont tableFont = new PdfStandardFont(PdfFontFamily.Helvetica, 10);
+                // Fonts (reduced sizes for better fit)
+                PdfFont headingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 14, PdfFontStyle.Bold);
+                PdfFont subHeadingFont = new PdfStandardFont(PdfFontFamily.Helvetica, 10, PdfFontStyle.Bold);
+                PdfFont tableHeaderFont = new PdfStandardFont(PdfFontFamily.Helvetica, 9, PdfFontStyle.Bold);
+                PdfFont tableFont = new PdfStandardFont(PdfFontFamily.Helvetica, 8);
 
-                // Starting Y position
-                float y = 20;
+                float y = 20; // Starting Y position
 
                 // School Name
                 graphics.DrawString("XYZ School", headingFont, PdfBrushes.Black, new PointF(20, y));
-                y += 30;
+                y += 25;
 
                 // Report Title
                 graphics.DrawString("1st Term Exam 2025 - Class Master Sheet", subHeadingFont, PdfBrushes.Black, new PointF(20, y));
-                y += 30;
-
-                // Table Header
-                graphics.DrawString("Student Name", tableHeaderFont, PdfBrushes.Black, new PointF(20, y));
-                float columnStartX = 200;
-
-                // Column for each subject
-                var subjectNames = studentReports.SelectMany(s => s.Marks.Keys).Distinct().ToList();
-                foreach (var subject in subjectNames)
-                {
-                    graphics.DrawString(subject, tableHeaderFont, PdfBrushes.Black, new PointF(columnStartX, y));
-                    columnStartX += 100;  // Adjust width for each subject column
-                }
-
-                // Total and Rank columns
-                graphics.DrawString("Total", tableHeaderFont, PdfBrushes.Black, new PointF(columnStartX, y));
-                columnStartX += 100;
-                graphics.DrawString("Rank", tableHeaderFont, PdfBrushes.Black, new PointF(columnStartX, y));
                 y += 20;
 
-                // Draw a horizontal line after the header
-                graphics.DrawLine(PdfPens.Black, new PointF(20, y), new PointF(columnStartX + 100, y));
+                // Subject headers
+                var subjectNames = studentReports.SelectMany(s => s.Marks.Keys).Distinct().ToList();
+                int totalColumns = subjectNames.Count + 3; // Student Name + Total + Rank
+
+                // Dynamically adjust column width based on the number of subjects
+                float columnWidth = Math.Max(50, (page.GetClientSize().Width - 40) / totalColumns);
+
+                float x = 20;
+                graphics.DrawString("Student Name", tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+                x += columnWidth * 2; // Give more space for names
+
+                foreach (var subject in subjectNames)
+                {
+                    graphics.DrawString(subject, tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+                    x += columnWidth;
+                }
+
+                graphics.DrawString("Total", tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+                x += columnWidth;
+                graphics.DrawString("Rank", tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+
+                y += 15;
+                graphics.DrawLine(PdfPens.Black, new PointF(20, y), new PointF(x + columnWidth, y));
                 y += 10;
 
-                // Adjust the maximum Y position on the page
-                float maxY = page.GetClientSize().Height - 50; // Leave some space at the bottom for margin
-                float lineHeight = 20; // Height of each row
+                // Page constraints
+                float maxY = page.GetClientSize().Height - 30;
+                float rowHeight = 15;
 
-                // Loop through each student and display their data in a table format
                 foreach (var student in studentReports)
                 {
-                    // Check if we need to move to the next page
-                    if (y + lineHeight > maxY)
+                    if (y + rowHeight > maxY)
                     {
-                        // Create a new page in landscape if the current page is full
+                        // Create new page if needed
                         page = document.Pages.Add();
                         graphics = page.Graphics;
-                        y = 20; // Reset the Y position for the new page
+                        y = 20;
 
-                        // Redraw the table header (for new page)
-                        graphics.DrawString("Student Name", tableHeaderFont, PdfBrushes.Black, new PointF(20, y));
-                        columnStartX = 200;
+                        // Redraw headers
+                        x = 20;
+                        graphics.DrawString("Student Name", tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+                        x += columnWidth * 2;
 
                         foreach (var subject in subjectNames)
                         {
-                            graphics.DrawString(subject, tableHeaderFont, PdfBrushes.Black, new PointF(columnStartX, y));
-                            columnStartX += 100;
+                            graphics.DrawString(subject, tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+                            x += columnWidth;
                         }
 
-                        graphics.DrawString("Total", tableHeaderFont, PdfBrushes.Black, new PointF(columnStartX, y));
-                        columnStartX += 100;
-                        graphics.DrawString("Rank", tableHeaderFont, PdfBrushes.Black, new PointF(columnStartX, y));
-                        y += 20;
-                        graphics.DrawLine(PdfPens.Black, new PointF(20, y), new PointF(columnStartX + 100, y));
+                        graphics.DrawString("Total", tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+                        x += columnWidth;
+                        graphics.DrawString("Rank", tableHeaderFont, PdfBrushes.Black, new PointF(x, y));
+
+                        y += 15;
+                        graphics.DrawLine(PdfPens.Black, new PointF(20, y), new PointF(x + columnWidth, y));
                         y += 10;
                     }
 
-                    float x = 20;
+                    // Draw student details
+                    x = 20;
                     graphics.DrawString(student.FullName, tableFont, PdfBrushes.Black, new PointF(x, y));
-                    x += 180;
+                    x += columnWidth * 2;
 
-                    // Display marks for each subject
                     float totalMarks = 0;
                     foreach (var subject in subjectNames)
                     {
                         var mark = student.Marks.ContainsKey(subject) ? student.Marks[subject] : (float?)null;
                         totalMarks += mark ?? 0;
                         graphics.DrawString(mark?.ToString() ?? "N/A", tableFont, PdfBrushes.Black, new PointF(x, y));
-                        x += 100;
+                        x += columnWidth;
                     }
 
-                    // Total and Rank columns
                     graphics.DrawString(totalMarks.ToString(), tableFont, PdfBrushes.Black, new PointF(x, y));
-                    x += 100;
+                    x += columnWidth;
                     graphics.DrawString(student.Rank.ToString(), tableFont, PdfBrushes.Black, new PointF(x, y));
-                    y += lineHeight;
+
+                    y += rowHeight;
                 }
 
-                // Return the PDF as byte array
+                // Return PDF as byte array
                 using (MemoryStream stream = new MemoryStream())
                 {
                     document.Save(stream);
@@ -296,6 +313,7 @@ namespace SMS.Web.Controllers
                 }
             }
         }
+
 
 
 

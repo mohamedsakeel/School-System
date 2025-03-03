@@ -41,6 +41,8 @@ namespace SMS.Web.Controllers
             _assignTeacherRepo = assignTeacherRepo;
         }
 
+        public IActionResult BulkUpload() => View();
+
         public async Task<IActionResult> ClassMaster()
         {
             ClassViewModel VM = new ClassViewModel();
@@ -122,6 +124,21 @@ namespace SMS.Web.Controllers
             }
 
             return RedirectToAction("StudentMaster");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteStudent([FromBody] DeleteStudentRequest request)
+        {
+            DBResultStatus res = await _studentRepo.DeleteStudent(request.StudentId);
+
+            if (res == DBResultStatus.SUCCESS)
+            {
+                return Json(new { success = true, message = "Student deleted successfully" });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Something went wrong!" });
+            }
         }
 
         public async Task<IActionResult> SubjectMaster()
@@ -212,23 +229,21 @@ namespace SMS.Web.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            foreach (var selection in model.ClassSubjectSelections)
-            {
-                foreach (var subjectId in selection.SubjectIds)
-                {
-                    var res = await _assignTeacherRepo.SaveTeacherAssignmentsAsync(
-                        model.SelectedTeacher, new List<string> { selection.ClassId.ToString() }, new List<string> { subjectId.ToString() }
-                    );
+            DBResultStatus res = await _assignTeacherRepo.SaveTeacherAssignmentsAsync(model.SelectedTeacher, model.SelectedClasses, model.SelectedSubjects);
 
-                    if (res != DBResultStatus.SUCCESS)
-                    {
-                        TempData["Toast"] = "Error in assigning teacher";
-                        return RedirectToAction("TeacherMaster");
-                    }
-                }
+            if (res == DBResultStatus.SUCCESS)
+            {
+                TempData["Toast"] = "Teacher assigned / updated successfully";
+            }
+            else if (res == DBResultStatus.ERROR || res == DBResultStatus.DBERROR)
+            {
+                TempData["Toast"] = "Something went wrong!";
+            }
+            else if (res == DBResultStatus.DUPLICATE)
+            {
+                TempData["Toast"] = "Record already exists";
             }
 
-            TempData["Toast"] = "Teacher assigned successfully";
             return RedirectToAction("TeacherMaster");
         }
 
@@ -237,6 +252,29 @@ namespace SMS.Web.Controllers
         {
             var subjects = await _subjectRepo.GetSubjectsByClassIdAsync(classId);
             return Json(subjects);
+        }
+
+        public class DeleteStudentRequest
+        {
+            public int StudentId { get; set; }
+        }
+
+        //Bulk upload Student
+        [HttpPost]
+        public async Task<IActionResult> UploadExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            List<Student> students = await _studentRepo.ReadStudentsFromExcelAsync(file);
+            return Json(students); // Show data in table before saving
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmUpload([FromBody] List<Student> students)
+        {
+            bool success = await _studentRepo.SaveStudentsAsync(students);
+            return success ? Ok("Upload successful") : BadRequest("Upload failed");
         }
     }
 }
