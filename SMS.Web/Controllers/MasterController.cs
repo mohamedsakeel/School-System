@@ -58,28 +58,34 @@ namespace SMS.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveClass(ClassViewModel model)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var _class = _mapper.Map<Class>(model.Class);
-
-            _class.EnteredBy = userId;
-            _class.EnteredDate = DateTime.UtcNow;
-
-            DBResultStatus res = await _classRepo.SaveClass(_class, model.SelectedSubjectIds);
-
-
-
-            if (res == DBResultStatus.SUCCESS)
+            try
             {
-                TempData["Toast"] = "Class created / updated successfully";
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var _class = _mapper.Map<Class>(model.Class);
+
+                //_class.EnteredBy = userId;
+                _class.EnteredDate = DateTime.UtcNow;
+
+                DBResultStatus res = await _classRepo.SaveClass(_class, model.SelectedSubjectIds);
+
+                if (res == DBResultStatus.SUCCESS)
+                {
+                    TempData["Toast"] = "Class created / updated successfully";
+                }
+                else if (res == DBResultStatus.ERROR || res == DBResultStatus.DBERROR)
+                {
+                    TempData["Toast"] = "Something went wrong!";
+                }
+                else if (res == DBResultStatus.DUPLICATE)
+                {
+                    TempData["Toast"] = "Class already exists";
+                }
             }
-            else if (res == DBResultStatus.ERROR || res == DBResultStatus.DBERROR)
+            catch (Exception ex)
             {
-                TempData["Toast"] = "Something went wrong!";
+                return Json(ex);
             }
-            else if (res == DBResultStatus.DUPLICATE)
-            {
-                TempData["Toast"] = "Class already exists";
-            }
+            
 
             return RedirectToAction("ClassMaster");
         }

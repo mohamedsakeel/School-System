@@ -26,6 +26,12 @@ namespace SMS.AppCore.Repositories
             _progressNotifier = progressNotifier;
         }
 
+        public async Task<int> StudentCount()
+        {
+            int student = await _dbContext.Students.CountAsync();
+            return student;
+        }
+
         public async Task<IEnumerable<StudentDTO>> GetAllStudentsWithClassAsync()
         {
             var studentWithClasses = await (from student in _dbContext.Students

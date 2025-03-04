@@ -13,5 +13,6 @@ namespace SMS.AppCore.Interfaces
         Task<DBResultStatus> DeleteStudent(int studentId);
         Task<List<Student>> ReadStudentsFromExcelAsync(IFormFile file);
         Task<bool> SaveStudentsAsync(List<Student> students);
+        Task<int> StudentCount();
     }
 }
